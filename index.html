@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Расчет трубопровода с распыляющими форсунками</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+  <h1>Расчет трубопровода с распыляющими форсунками</h1>
+</header>
+
+<div class="container">
+  <div class="grid">
+    <aside>
+      <div class="panel">
+        <h2>Исходные данные</h2>
+
+        <div class="field">
+          <label>Давление источника <span class="unit">бар</span></label>
+          <input type="number" id="p_source" value="70" step="0.1" min="0.1">
+        </div>
+
+        <div class="field">
+          <label>Общая длина линии <span class="unit">м</span></label>
+          <input type="number" id="l_total" value="100" step="1" min="1">
+        </div>
+
+        <div class="field">
+          <label>Расстояние до первой форсунки <span class="unit">м</span></label>
+          <input type="number" id="l_to_first" value="20" step="0.1" min="0">
+        </div>
+
+        <div class="field">
+          <label>Шаг между форсунками <span class="unit">м</span></label>
+          <input type="number" id="step" value="3" step="0.1" min="0.1">
+        </div>
+
+        <div class="field">
+          <label>Внутренний диаметр трубы <span class="unit">мм</span></label>
+          <input type="number" id="d_mm" value="4.5" step="0.1" min="0.1">
+        </div>
+
+        <div class="field">
+          <label>Плотность жидкости <span class="unit">кг/м³</span></label>
+          <input type="number" id="rho" value="998.2" step="0.1" min="1">
+        </div>
+
+        <div class="field">
+          <label>Вязкость <span class="unit">мПа·с</span></label>
+          <input type="number" id="mu_mpa" value="1.002" step="0.001" min="0.001">
+        </div>
+
+        <div class="field">
+          <label>Расход форсунки при 70 бар <span class="unit">мл/мин</span></label>
+          <input type="number" id="q_at_70" value="36" step="0.1" min="0.1">
+        </div>
+
+        <div class="field">
+          <label>Показатель степени n форсунки <span class="unit">-</span></label>
+          <input type="number" id="n_exp" value="1.0" step="0.01" min="0.1" max="1">
+        </div>
+
+        <div class="field">
+          <label>Коррекция для турбулентного режима <span class="unit">-</span></label>
+          <input type="number" id="blasius_corr" value="1.0" step="0.01" min="0.1" max="2.0">
+        </div>
+
+        <div class="field">
+          <label>Минимальное давление распыления <span class="unit">бар</span></label>
+          <input type="number" id="nozzle_min_p" value="25" step="0.1" min="0.1">
+        </div>
+
+        <button class="btn btn-primary" id="btnCalc">Рассчитать</button>
+      </div>
+    </aside>
+
+    <main>
+      <div id="errorBox" class="error hidden"></div>
+
+      <div id="results" class="hidden">
+        <div class="stats">
+          <div class="stat"><div class="value" id="stN">—</div><div class="label">Общее количество форсунок, шт</div></div>
+          <div class="stat"><div class="value" id="stQtotal">—</div><div class="label">Суммарный расход через форсунки, л/мин</div></div>
+          <div class="stat"><div class="value" id="stP1">—</div><div class="label">Давление на первой форсунке, бар</div></div>
+          <div class="stat"><div class="value" id="stPend">—</div><div class="label">Давление в конце линии, бар</div></div>
+        </div>
+
+        <div class="charts">
+          <div class="panel">
+            <h2>Профиль давления и расхода жидкости для трубопровода с распыляющими форсунками</h2>
+            <div class="chart-wrap"><canvas id="chartP"></canvas></div>
+          </div>
+        </div>
+
+        <div class="flow-legend">
+          <span class="flow-item"><span class="flow-color" style="background:rgba(239,68,68,.22)"></span>турбулентное течение</span>
+          <span class="flow-item"><span class="flow-color" style="background:rgba(245,158,11,.22)"></span>переходное течение</span>
+          <span class="flow-item"><span class="flow-color" style="background:rgba(22,163,74,.22)"></span>ламинарное течение</span>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2>📋 Таблица результатов</h2>
+            <div class="toolbar">
+              <button class="btn btn-secondary btn-sm" id="btnCsv">📄 CSV</button>
+              <button class="btn btn-secondary btn-sm" id="btnMd">📝 MD</button>
+            </div>
+          </div>
+          <div class="table-wrap" style="max-height: 480px; overflow-y: auto;">
+            <table id="dataTable">
+              <thead>
+                <tr><th>№ форсунки</th><th>Отметка трубопровода, м</th><th>Давление на форсунке, бар</th><th>Расход через форсунку, мл/мин</th><th>Расход сегмента, л/мин</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/validation.js"></script>
+<script src="js/math.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/export.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

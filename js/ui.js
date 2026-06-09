@@ -46,6 +46,21 @@ function highlightField(fieldId) {
 
 function showResultsPanel() {
   document.getElementById('results').classList.remove('hidden');
+  // На мобильных сворачиваем панель параметров после расчёта
+  if (window.innerWidth <= 768) {
+    document.getElementById('paramsPanel').classList.remove('expanded');
+    const btn = document.getElementById('btnToggleParams');
+    if (btn) btn.textContent = 'Показать параметры';
+  }
+}
+
+function toggleParamsPanel() {
+  const panel = document.getElementById('paramsPanel');
+  const btn = document.getElementById('btnToggleParams');
+  panel.classList.toggle('expanded');
+  btn.textContent = panel.classList.contains('expanded')
+    ? 'Скрыть параметры'
+    : 'Показать параметры';
 }
 
 function updateStats(R) {

@@ -108,4 +108,13 @@ document.getElementById('btnMd').addEventListener('click', () => {
   if (lastResult) exportMD(lastResult);
 });
 
+const btnToggle = document.getElementById('btnToggleParams');
+if (btnToggle) btnToggle.addEventListener('click', toggleParamsPanel);
+
+// На десктопе сразу раскрываем параметры
+if (window.innerWidth > 768) {
+  const panel = document.getElementById('paramsPanel');
+  if (panel) panel.classList.add('expanded');
+}
+
 runCalculation();

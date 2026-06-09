@@ -44,9 +44,9 @@ header h1 { margin: 0; font-size: 1.4rem; font-weight: 600; }
 }
 
 /* Collapsible parameters on mobile */
-.toggle-params { display: none; }
+.btn.toggle-params { display: none; }
 @media (max-width: 768px) {
-  .toggle-params {
+  .btn.toggle-params {
     display: inline-flex;
     width: 100%;
     margin-bottom: .6rem;
